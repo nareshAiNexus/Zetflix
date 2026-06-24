@@ -3,8 +3,8 @@ spring:
     name: content-service
   datasource:
     url: jdbc:mysql://localhost:3306/content_db
-    username: root       
-    password: root 
+    username: your_username       
+    password: your_password 
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true

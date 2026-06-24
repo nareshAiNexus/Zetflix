@@ -50,7 +50,7 @@ public class ContentController {
     @GetMapping("/{movieId}")
     public ResponseEntity<MovieResponse> getMovieById(
         @PathVariable String movieId){
-            return ResponseEntity.ok(contentService.getMoviesById(movieId));
+            return ResponseEntity.ok(contentService.getMovieById(movieId));
         }
     
     public ResponseEntity<List<MovieResponse>> searchMovies(
