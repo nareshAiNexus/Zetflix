@@ -36,7 +36,8 @@ public class EncodingService {
     @Value("${ffmpeg.path}")
     private String ffmpegPath;
 
-    @Value("${encoding.base-path}")
+
+    @Value("${encoding.temp-dir}")
     private String basePath;
 
     private static final String VIDEO_ENCODED_TOPIC = "video.encoded";
@@ -81,7 +82,7 @@ public class EncodingService {
                 int bitrate = qualities[1];
                 int height = qualities[2];
 
-                String qualityDir = jobPath + "/encoded" + height + "p";
+                String qualityDir = jobPath + "/encoded/" + height + "p";
                 Files.createDirectories(Paths.get(qualityDir));
 
                 encodeToHLS(localVideoPath, qualityDir, width, height, bitrate);
@@ -158,26 +159,27 @@ public class EncodingService {
     private void encodeToHLS(String inputPath, String outputDir,
             int width, int height, int bitrate) throws IOException, InterruptedException {
         String playlistPath = outputDir + "/playlist.m3u8";
-        String segmentPattern = outputDir + "segment_%03d.ts";
+        String segmentPattern = outputDir + "/segment_%03d.ts";
 
         // FFmpeg Command for HLS encoding
         List<String> command = Arrays.asList(
                 ffmpegPath,
                 "-i", inputPath, // Input File
                 "-vf", "scale=" + width + ":" + height, // Scale to resolution
-                "c:v", "libx264", // Video Codec
+                "-c:v", "libx264", // Video Codec
                 "-b:v", bitrate + "k", // Video Bitrate
                 "-c:a", "aac", // Audio Codec
                 "-b:a", "128k", // Audio Bitrate
                 "-hls_time", "10", // 10 Second segments
                 "-hls_list_size", "0", // Keep all segments
-                "hls_segment_filename", segmentPattern, // segment naming
+                "-hls_segment_filename", segmentPattern, // segment naming
                 "-f", "hls", // output format HLS
                 playlistPath // output Playlist
         );
 
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
+        processBuilder.inheritIO();
         Process process = processBuilder.start();
         int exitCode = process.waitFor();
 
@@ -186,15 +188,14 @@ public class EncodingService {
         }
     }
 
-
     /**
-     * Generate master HLS playliist that references all quality playlists
-     * This is the file the video player downloads first
+     * Generate master HLS playliist that references all quality playlists This
+     * is the file the video player downloads first
+     *
      * @param masterPlaylistPath
      * @throws IOException
      */
-
-    private void generateMasterPlaylist(String masterPlaylistPath) throws  IOException{
+    private void generateMasterPlaylist(String masterPlaylistPath) throws IOException {
         StringBuilder master = new StringBuilder();
         master.append("#EXTM3U\n");
         master.append("EXT-X-VERSION:3\n\n");
@@ -219,37 +220,36 @@ public class EncodingService {
     }
 
     /**
-     * Upload alll encoded files from local directory back to S3 
-     * 
+     * Upload alll encoded files from local directory back to S3
+     *
      * @param localDir
      * @param s3Prefix
      */
-    private void uploadEncodedFilesToS3(String localDir, String s3Prefix){
+    private void uploadEncodedFilesToS3(String localDir, String s3Prefix) {
         File directory = new File(localDir);
         uploadDirectoryToS3(directory, localDir, s3Prefix);
     }
 
-    private void uploadDirectoryToS3(File dir, String baseDir, String s3Prefix){
-        for (File file : dir.listFiles()){
-            if (file.isDirectory()){
+    private void uploadDirectoryToS3(File dir, String baseDir, String s3Prefix) {
+        for (File file : dir.listFiles()) {
+            if (file.isDirectory()) {
                 uploadDirectoryToS3(file, baseDir, s3Prefix);
-            }
-            else{
+            } else {
                 String relativePath = file.getAbsolutePath()
-                .substring(baseDir.length() + 1)
-                .replace("\\", "/");
+                        .substring(baseDir.length() + 1)
+                        .replace("\\", "/");
 
                 String s3Key = s3Prefix + relativePath;
                 String contentType = file.getName().endsWith(".m3u8")
-                    ? "application/x-mpegURL"
-                    : "video/MP2T";
+                        ? "application/x-mpegURL"
+                        : "video/MP2T";
 
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(s3Key)
-                    .contentType(contentType)
-                    .build();
-                
+                        .bucket(bucketName)
+                        .key(s3Key)
+                        .contentType(contentType)
+                        .build();
+
                 s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
                 log.debug("Uploaded: {}", s3Key);
             }
@@ -258,18 +258,18 @@ public class EncodingService {
 
     /**
      * Cleaned the temp files in S3
+     *
      * @param jobPath
      */
-    
-    private void cleanupTempFiles(String jobPath){
+    private void cleanupTempFiles(String jobPath) {
         try {
             Path dirPath = Paths.get(jobPath);
-            if(Files.exists(dirPath)){
+            if (Files.exists(dirPath)) {
                 Files.walk(dirPath)
-                    .sorted(java.util.Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-            log.info("Temp files cleaned up for job: {}", jobPath);
+                        .sorted(java.util.Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+                log.info("Temp files cleaned up for job: {}", jobPath);
             }
         } catch (IOException e) {
             log.warn("Failed to cleanup temp file : {}", e.getMessage());

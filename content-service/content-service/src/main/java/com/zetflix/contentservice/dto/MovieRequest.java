@@ -2,7 +2,7 @@ package com.zetflix.contentservice.dto;
 
 import com.zetflix.contentservice.model.Genre;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,27 +12,30 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MovieRequest {
 
-    @NotBlank(message="Title is required")
+    @NotNull(message="Title is required")
     private String title;
 
     private String description;
 
     private String id;
 
-    @NotBlank(message="Genre is required")
+    @NotNull(message="Genre is required")
     private Genre genre;
 
     private String director;
 
     private String cast;
 
-    private int releaseYear;
+    @NotNull(message="Release year is required")
+    private Integer releaseYear;
 
-    private double rating;
+    @NotNull(message = "Rating is required")
+    private Double rating;
 
     private String thumbnailUrl;
 
-    private int durationMinutes;
+    @NotNull(message = "Duration is required")
+    private Integer durationMinutes;
 
     // S3 Key for the video file
     private String videoKey;
