@@ -45,10 +45,8 @@ public class EncodingService {
     // Video qualities to encoded
     // Format : resolution , bitrate, height
     private static final List<int[]> VIDEO_QUALITIES = Arrays.asList(
-            new int[]{1920, 5000, 1080}, // 1080 - 5000k bitrate
             new int[]{1280, 2800, 720}, // 720p - 2800k bitrates
-            new int[]{854, 1200, 480}, // 480p - 1200k bitrate
-            new int[]{640, 800, 360} // 360p - 800k bitrate 
+            new int[]{854, 1200, 480} // 480p - 1200k bitrate
     );
 
     /**
@@ -201,7 +199,7 @@ public class EncodingService {
         master.append("EXT-X-VERSION:3\n\n");
 
         // Add Each quality to master playlist
-        int[][] qualities = {{1920, 5000, 1080}, {1280, 2800, 720}, {854, 1200, 480}, {640, 800, 360}};
+        int[][] qualities = {{1280, 2800, 720}, {854, 1200, 480}};
 
         for (int[] q : qualities) {
             int width = q[0];
