@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: video-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  servlet:
+    multipart:
+      max-file-size: 2GB
+      max-request-size: 2GB
+
+
+server:
+  port: 8082
+  tomcat:
+    max-swallow-size: 2GB
+    max-http-form-post-size: 2GB
+
+aws:
+  access-key: ${AWS_ACCESS_KEY:your-aws-access-key}
+  secret-key: ${AWS_SECRET_KEY:your-aws-secret-key}
+  region: ${AWS_REGION:your-aws-region}
+  s3:
+    bucket-name: ${AWS_BUCKET_NAME:your-s3-bucket-name}
+
+# ACTUATOR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info

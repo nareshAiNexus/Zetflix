@@ -1,19 +1,14 @@
 spring:
   application:
-    name: content-service
-  datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:3306/content_db
-    username: ${DB_USERNAME:your-db-username}
-    password: ${DB_PASSWORD:your-db-password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
+    name: streaming-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: localhost:9092
     consumer:
-      group-id: content-service-group
+      group-id: streaming-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -27,10 +22,19 @@ spring:
                 headers: false
             value:
               default:
-                type: java.util.HashMap
+                type: com.zetflix.streamingservice.event.VideoEncodedEvent
 
 server:
-  port: 8001
+  port: 8084
+
+#AWS 
+aws:
+  access-key: ${AWS_ACCESS_KEY:your-aws-access-key}
+  secret-key: ${AWS_SECRET_KEY:your-aws-secret-key}
+  region: ${AWS_REGION:your-aws-region}
+  s3:
+    bucket-name: ${AWS_BUCKET_NAME:your-s3-bucket-name}
+    presigned-url-expiry: 60
 
 management:
   endpoints:

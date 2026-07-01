@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore configuration secrets
+src/main/resources/application.yaml
+*.yaml

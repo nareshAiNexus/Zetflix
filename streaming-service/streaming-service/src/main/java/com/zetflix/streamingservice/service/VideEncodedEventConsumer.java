@@ -34,7 +34,7 @@ public class VideEncodedEventConsumer {
 
         if (event.isSuccess()) {
             // Store master playlist key in redis 
-            String cacheKey = MASTER_PLAYLIST_KEY_PREFIX + event.getMovieId();
+            String cacheKey = MASTER_PLAYLIST_KEY_PREFIX + ":" + event.getMovieId();
             redisTemplate.opsForValue().set(cacheKey, event.getMasterPlaylistKey());
             log.info("Stored master playlist key in Redis for movie: {} with key: {}", event.getMovieId(), cacheKey);
         }

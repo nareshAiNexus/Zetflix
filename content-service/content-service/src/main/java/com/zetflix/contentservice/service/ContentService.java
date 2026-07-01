@@ -94,22 +94,42 @@ public class ContentService {
 
     public void updateVideoKey(String movieId, String videoKey){
         log.info("updating videoKey for movie: {}", movieId);
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Movie Not found: " + movieId));
+        Movie movie = movieRepository.findById(movieId).orElse(null);
+        if (movie == null) {
+            log.warn("Movie not found for ID: {}", movieId);
+            return;
+        }
         
         movie.setVideoKey(videoKey);
         movie.setVideoStatus(VideoStatus.UPLOADED); 
         movieRepository.save(movie);
     }
 
-    public void updateHslUrl(String movieId, String hlsUrl){
+    public void updateHlsUrl(String movieId, String hlsUrl){
         log.info("Updating hlsurl for movie: {}", movieId);
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("Movie Not found: "+ movieId));
+        Movie movie = movieRepository.findById(movieId).orElse(null);
+        if (movie == null) {
+            log.warn("Movie not found for ID: {}", movieId);
+            return;
+        }
 
         movie.setHlsUrl(hlsUrl);
         movie.setVideoStatus(VideoStatus.READY);
         movieRepository.save(movie);
 
         log.info("Movie {} is now ready for Streaming", movieId);
+    }
+
+    public void updateVideoStatus(String movieID, VideoStatus status){
+        log.info("Updating video status for movie: {} to {}", movieID, status);
+        Movie movie = movieRepository.findById(movieID).orElse(null);
+        if (movie == null) {
+            log.warn("Movie not found for ID: {}", movieID);
+            return;
+        }
+
+        movie.setVideoStatus(status);
+        movieRepository.save(movie);
     }
 
     private MovieResponse mapToResponse(Movie movie){
