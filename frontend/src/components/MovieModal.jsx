@@ -64,7 +64,7 @@ const MovieModal = ({ movie, isOpen, onClose }) => {
               style={{ background: movie.buttonColor || 'linear-gradient(90deg, #1E90FF 0%, #D12CB2 100%)' }}
               onClick={() => navigate(`/watch/${movie.id}`, { state: { movie } })}
             >
-              <span className="icon">▶</span> Watch Now
+              <span className="icon">▶</span> {movie.isContinue ? 'Continue' : 'Watch Now'}
             </button>
           </div>
         </div>

@@ -3,10 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './MySpace.css';
 
 const watchlist = [
-  { id: 1, title: "Stranger Things", img: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=500&q=80" },
-  { id: 2, title: "The Crown", img: "https://images.unsplash.com/photo-1574267432553-4b4628081524?w=500&q=80" },
-  { id: 3, title: "Black Mirror", img: "https://images.unsplash.com/photo-1618666012174-83b441c0bc76?w=500&q=80" },
-  { id: 4, title: "Narcos", img: "https://images.unsplash.com/photo-1533158326339-7f3cf2404354?w=500&q=80" },
+  { id: 101, title: 'Pulp Fiction', img: '/images/pulp-fiction.jpg' },
+  { id: 102, title: 'Kill Bill', img: '/images/killbill.jpg' },
 ];
 
 const MySpace = () => {
@@ -250,14 +248,7 @@ const MySpace = () => {
               </div>
               <button className="setting-action">Update</button>
             </div>
-            <div className="setting-card">
-              <span className="setting-icon">💳</span>
-              <div className="setting-details">
-                <h4>Subscription & Billing</h4>
-                <p>Manage your payment methods and plan</p>
-              </div>
-              <button className="setting-action">Manage</button>
-            </div>
+
             <div className="setting-card">
               <span className="setting-icon">📺</span>
               <div className="setting-details">
