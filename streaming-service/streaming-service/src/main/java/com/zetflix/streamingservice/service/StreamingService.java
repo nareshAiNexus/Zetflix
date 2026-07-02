@@ -67,7 +67,7 @@ public class StreamingService {
         String cachedUrl = redisTemplate.opsForValue().get(cacheKey);
         if (cachedUrl != null) {
             log.info("Streaming URL found in cache for movie : {}", movieId);
-            return new StreamingResponse(movieId, cachedUrl, "1080, 720, 480, 360", presignedUrlExpiry);
+            return new StreamingResponse(movieId, cachedUrl, "720, 480", presignedUrlExpiry);
         }
 
         // Generate new presigned URL from S3
@@ -87,7 +87,7 @@ public class StreamingService {
         return new StreamingResponse(
             movieId,
             presignedUrl,
-            "1080, 720, 480, 360",
+            "720, 480",
             presignedUrlExpiry
         );
 
@@ -102,6 +102,12 @@ public class StreamingService {
      */
 
     public String getSignedPlaylist(String movieId, String playlistPath){
+        String cacheKey = "streaming:signed:" + movieId + ":" + playlistPath;
+        String cachedSignedContent = redisTemplate.opsForValue().get(cacheKey);
+        if (cachedSignedContent != null) {
+            log.info("Returning signed playlist from cache for path: {}", playlistPath);
+            return cachedSignedContent;
+        }
         
         // GET base path for this playlist
         String basePath = playlistPath.substring(0, playlistPath.lastIndexOf('/') + 1);
@@ -113,6 +119,9 @@ public class StreamingService {
         String signedContent = rewriteM3u8SignedUrls(
             m3u8Content, basePath
         );
+
+        // Cache the signed playlist content for 50 minutes (urls expire in 60 minutes)
+        redisTemplate.opsForValue().set(cacheKey, signedContent, 50, TimeUnit.MINUTES);
 
         return signedContent;
     }

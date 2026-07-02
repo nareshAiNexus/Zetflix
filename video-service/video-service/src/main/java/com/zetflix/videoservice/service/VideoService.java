@@ -24,7 +24,7 @@ public class VideoService {
     private final S3Client s3Client;
     private final KafkaTemplate<String, VideoUploadedEvent> kafkaTemplate;
 
-    @Value("${aws.s3.bucket-name")
+    @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
     private static final String VIDEO_UPLOADED_TOPIC = "video.uploaded";
@@ -49,6 +49,7 @@ public class VideoService {
         String videoKey = "raw/" + movieId + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
         
         // Bulid send request to send video to S3
+        log.info("Uploading to bucket: [{}]", bucketName);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
             .bucket(bucketName)
