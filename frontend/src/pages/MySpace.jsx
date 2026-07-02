@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
 import './MySpace.css';
 
 const watchlist = [
@@ -9,17 +10,19 @@ const watchlist = [
 
 const MySpace = () => {
   const navigate = useNavigate();
+  const authUser = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   const user = {
-    name: localStorage.getItem('userName') || "Jegan Vishnu",
-    email: localStorage.getItem('userEmail') || "jegan.vishnu@zetflix.com",
+    name: authUser?.name || "Jegan Vishnu",
+    email: authUser?.email || "jegan.vishnu@zetflix.com",
     plan: "Premium Ultra HD",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jegan&backgroundColor=1E90FF",
     joinDate: "July 2026",
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userEmail');
+    logout();
     navigate('/login');
   };
 

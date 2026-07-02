@@ -11,11 +11,7 @@
 }
 
 @media (max-width: 768px) {
-  .hero-carousel-container {
-    aspect-ratio: 4 / 5;
-    max-height: 70vh;
-    border-radius: 0 0 20px 20px;
-  }
+  /* Combined below */
 }
 
 .carousel-slide {
@@ -165,6 +161,14 @@
 }
 
 @media (max-width: 768px) {
+  .hero-carousel-container {
+    aspect-ratio: 4 / 5;
+    max-height: 75vh;
+    border-radius: 0 0 20px 20px;
+  }
+  .carousel-content-wrapper {
+    bottom: 15%;
+  }
   .movie-title {
     font-size: 2.5rem;
   }

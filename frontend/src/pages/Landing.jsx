@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
 import './Landing.css';
 
 const Landing = () => {
@@ -9,14 +10,36 @@ const Landing = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email) {
-      localStorage.setItem('userEmail', email);
-      if (!isLogin && name) {
-        localStorage.setItem('userName', name);
+      const emailKey = email.toLowerCase();
+      let usersMap = {};
+      try {
+        const storedUsers = localStorage.getItem('usersMap');
+        if (storedUsers) {
+          usersMap = JSON.parse(storedUsers);
+        }
+      } catch (err) {
+        console.error("Error parsing users map", err);
       }
+
+      let finalName = '';
+      if (!isLogin && name) {
+        usersMap[emailKey] = name;
+        localStorage.setItem('usersMap', JSON.stringify(usersMap));
+        finalName = name;
+      } else if (isLogin) {
+        if (usersMap[emailKey]) {
+          finalName = usersMap[emailKey];
+        } else {
+          finalName = email.split('@')[0];
+        }
+      }
+      
+      login(email, finalName);
       navigate('/');
     }
   };

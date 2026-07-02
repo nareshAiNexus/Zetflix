@@ -287,6 +287,9 @@
 }
 
 @media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+  }
   .modal-info-section {
     left: 20px;
     width: 90%;
