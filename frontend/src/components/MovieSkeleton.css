@@ -1,0 +1,38 @@
+.movie-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.skeleton-img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+}
+
+.skeleton-text {
+  height: 16px;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+}
+
+.skeleton-text.title {
+  width: 80%;
+  height: 20px;
+}
+
+.skeleton-text.subtitle {
+  width: 60%;
+}
+
+.pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}

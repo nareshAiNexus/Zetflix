@@ -1,0 +1,41 @@
+.app-container {
+  min-height: 100vh;
+  background-color: #050505;
+  color: #ffffff;
+  padding-left: 90px;
+}
+
+.content-section {
+  padding: 40px;
+}
+
+.content-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.placeholder-movies {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+
+.placeholder-card {
+  min-width: 250px;
+  height: 140px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding-left: 0;
+    padding-bottom: 60px;
+  }
+  .content-section {
+    padding: 20px;
+  }
+}
