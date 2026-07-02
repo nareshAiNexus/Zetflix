@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import HeroCarousel from '../components/HeroCarousel';
 import MovieModal from '../components/MovieModal';
+import MovieSkeleton from '../components/MovieSkeleton';
 
 const Home = () => {
   const [uploadedMovies, setUploadedMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const uploads = JSON.parse(localStorage.getItem('uploadedMovies') || '[]');
     setUploadedMovies(uploads);
+    
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   const openModal = (movie) => {
@@ -90,8 +97,11 @@ const Home = () => {
       <div className="content-section" style={{ padding: '0 5%', marginTop: '30px' }}>
         <h2 style={{ color: 'white', marginBottom: '15px' }}>Continue Watching</h2>
         <div className="movies-grid" style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
-          {mockMovies.slice(0, 3).map(movie => (
-            <div 
+          {isLoading ? (
+            [1, 2, 3].map(n => <div key={n} style={{ minWidth: '300px' }}><MovieSkeleton /></div>)
+          ) : (
+            mockMovies.slice(0, 3).map(movie => (
+              <div 
               key={movie.id} 
               className="movie-card" 
               style={{ minWidth: '300px', cursor: 'pointer' }}
@@ -113,15 +123,19 @@ const Home = () => {
               </div>
               <h4 style={{ color: 'white', marginTop: '10px', fontSize: '1rem' }}>{movie.title}</h4>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       <div className="content-section" style={{ padding: '0 5%', marginTop: '30px', paddingBottom: '50px' }}>
         <h2 style={{ color: 'white', marginBottom: '15px' }}>New Arrivals</h2>
         <div className="movies-grid" style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
-          {mockMovies.map(movie => (
-            <div 
+          {isLoading ? (
+            [1, 2, 3, 4, 5].map(n => <div key={n} style={{ minWidth: '200px' }}><MovieSkeleton /></div>)
+          ) : (
+            mockMovies.map(movie => (
+              <div 
               key={movie.id} 
               className="movie-card" 
               style={{ minWidth: '200px', cursor: 'pointer' }}
@@ -143,7 +157,8 @@ const Home = () => {
               </div>
               <h4 style={{ color: 'white', marginTop: '10px', fontSize: '1rem' }}>{movie.title}</h4>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 

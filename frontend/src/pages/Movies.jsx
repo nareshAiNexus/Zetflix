@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import MovieModal from '../components/MovieModal';
+import MovieSkeleton from '../components/MovieSkeleton';
 import './Pages.css';
 
 const Movies = () => {
   const [allMovies, setAllMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const mockMovies = [
@@ -43,6 +45,11 @@ const Movies = () => {
     
     const uploads = JSON.parse(localStorage.getItem('uploadedMovies') || '[]');
     setAllMovies([...mockMovies, ...uploads]);
+
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   const openModal = (movie) => {
@@ -56,30 +63,34 @@ const Movies = () => {
       <p style={{ color: '#a3a3a3', marginBottom: '30px' }}>Explore the latest blockbuster movies.</p>
       
       <div className="movies-grid" style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-        {allMovies.map(movie => (
-          <div 
-            key={movie.id} 
-            className="movie-card" 
-            style={{ width: '200px', cursor: 'pointer', marginBottom: '20px' }}
-            onClick={() => openModal(movie)}
-          >
+        {isLoading ? (
+          [1, 2, 3, 4, 5, 6, 7, 8].map(n => <div key={n} style={{ width: '200px', marginBottom: '20px' }}><MovieSkeleton /></div>)
+        ) : (
+          allMovies.map(movie => (
             <div 
-              className="movie-card-img" 
-              style={{ 
-                backgroundImage: `url(${movie.imageUrl})`, 
-                height: '300px', 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center', 
-                borderRadius: '8px' 
-              }}
+              key={movie.id} 
+              className="movie-card" 
+              style={{ width: '200px', cursor: 'pointer', marginBottom: '20px' }}
+              onClick={() => openModal(movie)}
             >
-              <div className="movie-card-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'rgba(0,0,0,0.4)', opacity: 0, transition: 'opacity 0.2s' }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0}>
-                <button className="play-btn" style={{ background: 'white', color: 'black', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '20px', cursor: 'pointer' }}>▶</button>
+              <div 
+                className="movie-card-img" 
+                style={{ 
+                  backgroundImage: `url(${movie.imageUrl})`, 
+                  height: '300px', 
+                  backgroundSize: 'cover', 
+                  backgroundPosition: 'center', 
+                  borderRadius: '8px' 
+                }}
+              >
+                <div className="movie-card-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'rgba(0,0,0,0.4)', opacity: 0, transition: 'opacity 0.2s' }} onMouseEnter={e => e.currentTarget.style.opacity = 1} onMouseLeave={e => e.currentTarget.style.opacity = 0}>
+                  <button className="play-btn" style={{ background: 'white', color: 'black', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '20px', cursor: 'pointer' }}>▶</button>
+                </div>
               </div>
+              <h4 style={{ color: 'white', marginTop: '10px', fontSize: '1rem' }}>{movie.title}</h4>
             </div>
-            <h4 style={{ color: 'white', marginTop: '10px', fontSize: '1rem' }}>{movie.title}</h4>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <MovieModal 
