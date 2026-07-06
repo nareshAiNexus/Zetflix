@@ -148,6 +148,7 @@ public class ContentService {
         response.setVideoStatus(movie.getVideoStatus());
         response.setHlsUrl(movie.getHlsUrl());
         response.setCreatedAt(movie.getCreatedAt());
+        response.setUpdatedAt(movie.getUpdatedAt());
 
         return response;
     }

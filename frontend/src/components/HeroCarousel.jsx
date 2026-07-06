@@ -2,79 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './HeroCarousel.css';
 import MovieModal from './MovieModal';
 
-const mockMovies = [
-  {
-    id: 1,
-    title: "KILL BILL",
-    year: 2003,
-    languages: "English",
-    genre: "Action • Thriller",
-    imageUrl: "/images/killbill.jpg",
-    topBadge: "Volume 1",
-    maturity: "A",
-    duration: "1h 51m",
-    description: "After awakening from a four-year coma, a former assassin wreaks vengeance on the team of assassins who betrayed her.",
-    tags: ["Action", "Martial Arts", "Revenge", "Iconic"],
-    buttonColor: "#F4D03F"
-  },
-  {
-    id: 2,
-    title: "INGLOURIOUS BASTERDS",
-    year: 2009,
-    languages: "English • French • German",
-    genre: "War • Action",
-    imageUrl: "/images/inglourious-basterds.jpg",
-    topBadge: "Tarantino Masterpiece",
-    maturity: "A",
-    duration: "2h 33m",
-    description: "In Nazi-occupied France during World War II, a plan to assassinate Nazi leaders by a group of Jewish U.S. soldiers coincides with a theatre owner's vengeful plans for the same.",
-    tags: ["War", "Action", "History", "Revenge"],
-    buttonColor: "#B03A2E"
-  },
-  {
-    id: 3,
-    title: "RESERVOIR DOGS",
-    year: 1992,
-    languages: "English",
-    genre: "Crime • Thriller",
-    imageUrl: "/images/reservoir-dogs.jpg",
-    topBadge: "Cult Classic",
-    maturity: "A",
-    duration: "1h 39m",
-    description: "When a simple jewelry heist goes horribly wrong, the surviving criminals begin to suspect that one of them is a police informant.",
-    tags: ["Crime", "Thriller", "Heist", "Classic"],
-    buttonColor: "#922B21"
-  },
-  {
-    id: 4,
-    title: "PULP FICTION",
-    year: 1994,
-    languages: "English",
-    genre: "Crime • Drama",
-    imageUrl: "/images/pulp-fiction.jpg",
-    maturity: "A",
-    duration: "2h 34m",
-    description: "The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
-    tags: ["Crime", "Drama", "Cult", "Masterpiece"],
-    buttonColor: "#E67E22"
-  },
-  {
-    id: 5,
-    title: "ONCE UPON A TIME IN HOLLYWOOD",
-    year: 2019,
-    languages: "English",
-    genre: "Comedy • Drama",
-    imageUrl: "/images/ouoh.jpg",
-    topBadge: "Academy Award Winner",
-    maturity: "A",
-    duration: "2h 41m",
-    description: "A faded television actor and his stunt double strive to achieve fame and success in the final years of Hollywood's Golden Age in 1969 Los Angeles.",
-    tags: ["Comedy", "Drama", "Hollywood", "Nostalgia"],
-    buttonColor: "#F39C12"
-  }
-];
-
-const HeroCarousel = () => {
+const HeroCarousel = ({ movies = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,16 +13,22 @@ const HeroCarousel = () => {
   };
 
   useEffect(() => {
+    if (movies.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % mockMovies.length);
-    }, 4000); // Slide every 4 seconds
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % movies.length);
+    }, 5000); // Slide every 5 seconds
 
     return () => clearInterval(timer);
-  }, []);
+  }, [movies.length]);
+
+  if (movies.length === 0) return null;
+
+  // Safe indexing
+  const currentMovie = movies[currentIndex] || movies[0];
 
   return (
     <div className="hero-carousel-container">
-      {mockMovies.map((movie, index) => {
+      {movies.map((movie, index) => {
         const isActive = index === currentIndex;
         return (
           <div
@@ -109,19 +43,14 @@ const HeroCarousel = () => {
             </div>
             
             <div className="carousel-content-wrapper">
-              {movie.topBadge && <div className="top-badge">🏅 {movie.topBadge}</div>}
-              
               <div className="carousel-content">
                 <h1 className="movie-title">{movie.title}</h1>
                 <p className="movie-meta">
-                  {movie.year} • {movie.languages} • {movie.genre}
+                  {movie.year} • {movie.genre}
                 </p>
                 <div className="action-buttons">
-                  <button className="btn-play" onClick={() => openModal(movie)}>
-                    <span className="icon">▶</span>
-                  </button>
-                  <button className="btn-add">
-                    <span className="icon">+</span>
+                  <button className="btn-play" onClick={() => openModal(movie)} title="Watch Now">
+                    <span className="icon">▶</span> Watch Now
                   </button>
                 </div>
               </div>
@@ -130,15 +59,17 @@ const HeroCarousel = () => {
         );
       })}
       
-      <div className="carousel-indicators">
-        {mockMovies.map((_, index) => (
-          <div
-            key={index}
-            className={`indicator ${index === currentIndex ? 'active' : ''}`}
-            onClick={() => setCurrentIndex(index)}
-          />
-        ))}
-      </div>
+      {movies.length > 1 && (
+        <div className="carousel-indicators">
+          {movies.map((_, index) => (
+            <div
+              key={index}
+              className={`indicator ${index === currentIndex ? 'active' : ''}`}
+              onClick={() => setCurrentIndex(index)}
+            />
+          ))}
+        </div>
+      )}
 
       <MovieModal 
         isOpen={isModalOpen} 

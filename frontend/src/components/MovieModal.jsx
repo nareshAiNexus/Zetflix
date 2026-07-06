@@ -59,13 +59,23 @@ const MovieModal = ({ movie, isOpen, onClose }) => {
           </div>
 
           <div className="modal-actions" style={{ justifyContent: 'flex-end', width: '100%' }}>
-            <button 
-              className="btn-watch-now" 
-              style={{ background: movie.buttonColor || 'linear-gradient(90deg, #1E90FF 0%, #D12CB2 100%)' }}
-              onClick={() => navigate(`/watch/${movie.id}`, { state: { movie } })}
-            >
-              <span className="icon">▶</span> {movie.isContinue ? 'Continue' : 'Watch Now'}
-            </button>
+            {movie.videoStatus === 'READY' ? (
+              <button 
+                className="btn-watch-now" 
+                style={{ background: movie.buttonColor || 'linear-gradient(90deg, #1E90FF 0%, #D12CB2 100%)' }}
+                onClick={() => navigate(`/watch/${movie.id}`, { state: { movie } })}
+              >
+                <span className="icon">▶</span> {movie.isContinue ? 'Continue' : 'Watch Now'}
+              </button>
+            ) : (
+              <button 
+                className="btn-watch-now disabled" 
+                style={{ background: '#333', color: '#666', cursor: 'not-allowed' }}
+                disabled
+              >
+                Status: {movie.videoStatus || 'PROCESSING'}
+              </button>
+            )}
           </div>
         </div>
       </div>

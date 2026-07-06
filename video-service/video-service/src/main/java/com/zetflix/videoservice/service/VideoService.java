@@ -1,6 +1,9 @@
 package com.zetflix.videoservice.service;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -48,18 +51,28 @@ public class VideoService {
 
         String videoKey = "raw/" + movieId + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
         
-        // Bulid send request to send video to S3
-        log.info("Uploading to bucket: [{}]", bucketName);
+        // Save multipart file to temp file first — AWS SDK requires mark/reset
+        // support on input streams for retry logic, which MultipartFile doesn't provide.
+        Path tempFile = Files.createTempFile("zetflix-upload-", ".tmp");
+        try {
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-            .bucket(bucketName)
-            .key(videoKey)
-            .contentType(file.getContentType())
-            .contentLength(file.getSize())
-            .build();
-        
-        s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-        log.info("Video uploaded to S3 Succesfully Key: {}", videoKey);
+            // Build send request to send video to S3
+            log.info("Uploading to bucket: [{}]", bucketName);
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(videoKey)
+                .contentType(file.getContentType())
+                .contentLength(file.getSize())
+                .build();
+            
+            s3Client.putObject(putObjectRequest, RequestBody.fromFile(tempFile));
+            log.info("Video uploaded to S3 Successfully Key: {}", videoKey);
+        } finally {
+            // Clean up temp file
+            Files.deleteIfExists(tempFile);
+        }
 
         // Publish event to kafka
         // Encoding Service will consume this and start FFmpeg processing

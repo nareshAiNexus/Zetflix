@@ -9,6 +9,7 @@ import Genres from './pages/Genres';
 import MySpace from './pages/MySpace';
 import Landing from './pages/Landing';
 import Watch from './pages/Watch';
+import Upload from './pages/Upload';
 import './App.css';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/search" element={<Search />} />
                 <Route path="/movies" element={<Movies />} />
                 <Route path="/genres" element={<Genres />} />
+                <Route path="/upload" element={<Upload />} />
                 <Route path="/myspace" element={<MySpace />} />
               </Routes>
             </main>
