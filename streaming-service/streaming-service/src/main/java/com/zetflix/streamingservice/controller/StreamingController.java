@@ -80,6 +80,9 @@ public class StreamingController {
 
         return ResponseEntity.ok()
             .header("Content-Type", "application/x-mpegURL")
+            .header("Cache-Control", "no-cache, no-store, must-revalidate")
+            .header("Pragma", "no-cache")
+            .header("Expires", "0")
             .body(signedPlaylist);
     }
 

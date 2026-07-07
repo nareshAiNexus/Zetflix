@@ -38,19 +38,27 @@ const HeroCarousel = ({ movies = [] }) => {
             <div 
               className="carousel-image"
               style={{ backgroundImage: `url(${movie.imageUrl})` }}
-            >
-              <div className="carousel-gradient-overlay" />
-            </div>
+            />
+            <div className="carousel-gradient-overlay" />
             
             <div className="carousel-content-wrapper">
               <div className="carousel-content">
+                <div className="n-tag">
+                  <span className="n-letter">Z</span>
+                  <span className="n-text">FILM</span>
+                </div>
                 <h1 className="movie-title">{movie.title}</h1>
-                <p className="movie-meta">
-                  {movie.year} • {movie.genre}
-                </p>
+                {movie.description && (
+                  <p className="movie-description">
+                    {movie.description.length > 200 ? `${movie.description.substring(0, 200)}...` : movie.description}
+                  </p>
+                )}
                 <div className="action-buttons">
                   <button className="btn-play" onClick={() => openModal(movie)} title="Watch Now">
-                    <span className="icon">▶</span> Watch Now
+                    <span className="icon">▶</span> Play
+                  </button>
+                  <button className="btn-info" onClick={() => openModal(movie)} title="More Info">
+                    <span className="icon">ℹ</span> More Info
                   </button>
                 </div>
               </div>

@@ -166,3 +166,15 @@ export async function getStreamingInfo(movieId) {
   if (!res.ok) throw new Error(`Failed to get streaming info: ${res.status}`);
   return res.json();
 }
+
+/**
+ * Fetch real-time encoding progress and benchmarks.
+ * GET /api/v1/movies/{movieId}/progress
+ * @param {string} movieId 
+ * @returns {Promise<Object>} Progress details
+ */
+export async function fetchEncodingProgress(movieId) {
+  const res = await fetch(`${CONTENT_API}/${movieId}/progress`);
+  if (!res.ok) throw new Error(`Failed to fetch progress: ${res.status}`);
+  return res.json();
+}

@@ -4,7 +4,7 @@
   left: 0;
   height: 100vh;
   width: 90px;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
   z-index: 200;
   display: flex;
   flex-direction: column;
@@ -15,49 +15,73 @@
 
 .sidebar.expanded {
   width: 250px;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.4) 100%);
+  background: #141414; /* Solid premium dark background */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 24px; /* Tighter Next.js gaps */
   padding: 0 0;
-  width: 250px; /* Force width so text doesn't wrap when transitioning */
+  width: 250px;
 }
 
 .sidebar-item {
   display: flex;
   align-items: center;
-  color: #a3a3a3;
+  color: #888; /* Sleeker mute color */
   cursor: pointer;
-  transition: color 0.2s ease, transform 0.2s ease;
-  padding: 0 33px; /* Centers the 24px icon in the 90px collapsed state */
+  transition: color 0.2s ease;
+  padding: 12px 33px; /* Centers the 24px icon in the 90px collapsed state */
   text-decoration: none;
+  position: relative;
+}
+
+/* Netflix/Vercel style left indicator bar */
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 3px;
+  background-color: #e50914; /* Crimson play indicator */
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .sidebar-item:hover,
 .sidebar-item.active {
   color: #ffffff;
-  transform: scale(1.05);
+}
+
+.sidebar-item.active::before {
+  opacity: 1;
 }
 
 .sidebar-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-item:hover .sidebar-icon {
+  transform: scale(1.06); /* Minimal scale hover on the icon only */
 }
 
 .sidebar-text {
-  margin-left: 25px;
-  font-size: 1.2rem;
+  margin-left: 20px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1.05rem; /* Clean text sizes */
   font-weight: 600;
   opacity: 0;
   white-space: nowrap;
-  transform: translateX(-10px);
+  transform: translateX(-8px);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -73,18 +97,17 @@
     top: auto;
     bottom: 0;
     left: 0;
-    background: #050505;
-    border-top: 1px solid #222;
+    background: #141414;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
     z-index: 999;
-    opacity: 1;
-    pointer-events: all;
   }
   .sidebar.expanded {
     width: 100%;
-    background: #050505;
+    background: #141414;
+    border-right: none;
   }
   .sidebar-menu {
     flex-direction: row;
@@ -99,9 +122,12 @@
     flex-direction: column;
     gap: 5px;
   }
+  .sidebar-item::before {
+    display: none; /* Hide indicator on mobile */
+  }
   .sidebar-item:hover,
   .sidebar-item.active {
-    transform: scale(1.1);
+    transform: none;
   }
   .sidebar-text {
     display: none;

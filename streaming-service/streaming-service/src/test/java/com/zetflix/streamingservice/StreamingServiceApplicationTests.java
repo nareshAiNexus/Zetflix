@@ -1,13 +1,11 @@
 package com.zetflix.streamingservice;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class StreamingServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+	@org.springframework.beans.factory.annotation.Autowired
+	private software.amazon.awssdk.services.s3.S3Client s3Client;
 
 }

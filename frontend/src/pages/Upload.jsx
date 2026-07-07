@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createMovie, uploadVideo, fetchMovieById } from '../api/api';
+import { createMovie, uploadVideo, fetchMovieById, fetchEncodingProgress } from '../api/api';
 import useMovieStore from '../store/useMovieStore';
 import './Upload.css';
 
@@ -30,7 +30,11 @@ const STATUS_INFO = {
 const Upload = () => {
   const navigate = useNavigate();
   const fetchMovies = useMovieStore(s => s.fetchMovies);
-  const pendingMovies = useMovieStore(s => s.getPendingMovies());
+  const movies = useMovieStore(s => s.movies);
+
+  const pendingMovies = React.useMemo(() => {
+    return movies.filter(m => m.videoStatus === 'PENDING');
+  }, [movies]);
 
   // ─── Form State ───────────────────────────────────────────────
   const [formData, setFormData] = useState({
@@ -45,6 +49,7 @@ const Upload = () => {
   const [movieId, setMovieId] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoStatus, setVideoStatus] = useState(null);
+  const [progressData, setProgressData] = useState(null);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -178,6 +183,13 @@ const Upload = () => {
 
     pollingRef.current = setInterval(async () => {
       try {
+        try {
+          const progress = await fetchEncodingProgress(mId);
+          setProgressData(progress);
+        } catch (pe) {
+          console.warn('Failed to fetch progress metrics:', pe);
+        }
+
         const movie = await fetchMovieById(mId);
         setVideoStatus(movie.videoStatus);
 
@@ -187,7 +199,7 @@ const Upload = () => {
           setSuccessMsg('🎬 Movie is ready to stream! Redirecting to homepage...');
           // Refresh global movie list
           fetchMovies(true);
-          setTimeout(() => navigate('/'), 3000);
+          setTimeout(() => navigate('/'), 4000);
         } else if (movie.videoStatus === 'FAILED') {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -196,7 +208,7 @@ const Upload = () => {
       } catch (err) {
         console.error('Polling error:', err);
       }
-    }, 5000);
+    }, 2000);
   }, [fetchMovies, navigate]);
 
   /**
@@ -439,6 +451,69 @@ const Upload = () => {
                 );
               })}
             </div>
+
+            {/* Realtime Metrics & Benchmarking Dashboard */}
+            {progressData && progressData.status && progressData.status !== 'UNKNOWN' && (
+              <div className="metrics-dashboard">
+                <div className="dashboard-header">
+                  <h4>⚡ Realtime System Metrics & Benchmark</h4>
+                  <span className="live-badge">● LIVE</span>
+                </div>
+                
+                <div className="metrics-grid-view">
+                  <div className="metric-box">
+                    <span className="metric-label">Pipeline State</span>
+                    <span className="metric-value state-highlight">{progressData.status}</span>
+                  </div>
+                  <div className="metric-box">
+                    <span className="metric-label">Transcode Speed</span>
+                    <span className="metric-value">{progressData.speed || "0.00x"}</span>
+                  </div>
+                  <div className="metric-box">
+                    <span className="metric-label">Framerate</span>
+                    <span className="metric-value">{progressData.fps || 0} fps</span>
+                  </div>
+                  <div className="metric-box">
+                    <span className="metric-label">RAM Footprint (JVM)</span>
+                    <span className="metric-value highlight-ram">{progressData.memoryUsageMb || 0} MB</span>
+                  </div>
+                  <div className="metric-box">
+                    <span className="metric-label">Segments Processed</span>
+                    <span className="metric-value">{progressData.processedSegments || 0} / {progressData.totalSegments || 100}</span>
+                  </div>
+                  <div className="metric-box">
+                    <span className="metric-label">Elapsed Time</span>
+                    <span className="metric-value">{progressData.elapsedSeconds || 0}s</span>
+                  </div>
+                </div>
+
+                <div className="dashboard-progress-section">
+                  {(progressData.status === 'ENCODING' || progressData.status === 'DOWNLOADING') && (
+                    <div className="progress-group">
+                      <div className="progress-lbl">
+                        <span>FFmpeg Transcoding (360p)</span>
+                        <span>{progressData.transcodeProgress}%</span>
+                      </div>
+                      <div className="bar-track">
+                        <div className="bar-fill" style={{ width: `${progressData.transcodeProgress}%` }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {(progressData.status === 'UPLOADING' || progressData.status === 'ENCODED') && (
+                    <div className="progress-group">
+                      <div className="progress-lbl">
+                        <span>S3 Segment Uploads (800MB Batch)</span>
+                        <span>{progressData.s3UploadProgress}%</span>
+                      </div>
+                      <div className="bar-track upload-bar">
+                        <div className="bar-fill" style={{ width: `${progressData.s3UploadProgress}%` }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {videoStatus === 'FAILED' && (
               <button className="upload-btn primary" onClick={() => { setStep(1); setError(''); }}>

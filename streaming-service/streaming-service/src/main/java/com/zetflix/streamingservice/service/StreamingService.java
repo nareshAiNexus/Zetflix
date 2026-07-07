@@ -67,7 +67,7 @@ public class StreamingService {
         String cachedUrl = redisTemplate.opsForValue().get(cacheKey);
         if (cachedUrl != null) {
             log.info("Streaming URL found in cache for movie : {}", movieId);
-            return new StreamingResponse(movieId, cachedUrl, "720, 480", presignedUrlExpiry);
+            return new StreamingResponse(movieId, cachedUrl, "360", presignedUrlExpiry);
         }
 
         // Generate new presigned URL from S3
@@ -87,7 +87,7 @@ public class StreamingService {
         return new StreamingResponse(
             movieId,
             presignedUrl,
-            "720, 480",
+            "360",
             presignedUrlExpiry
         );
 

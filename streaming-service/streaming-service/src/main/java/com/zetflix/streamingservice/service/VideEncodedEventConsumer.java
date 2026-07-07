@@ -29,18 +29,33 @@ public class VideEncodedEventConsumer {
         topics="video.encoded",
         groupId="streaming-service"
     )
-    public void consumeVideoEncodedEvent(VideoEncodedEvent event) {
-        log.info("Consumed VideoEncodedEvent for movie : {} success: {}", event.getMovieId(), event.isSuccess());
+    public void consumeVideoEncodedEvent(java.util.Map<String, Object> payload) {
+        String movieId = (String) payload.get("movieId");
+        Boolean success = (Boolean) payload.get("success");
+        String masterPlaylistKey = (String) payload.get("masterPlaylistKey");
+        String errorMessage = (String) payload.get("errorMessage");
 
-        if (event.isSuccess()) {
+        log.info("Consumed VideoEncodedEvent for movie : {} success: {}", movieId, success);
+
+        if (Boolean.TRUE.equals(success)) {
             // Store master playlist key in redis 
-            String cacheKey = MASTER_PLAYLIST_KEY_PREFIX + ":" + event.getMovieId();
-            redisTemplate.opsForValue().set(cacheKey, event.getMasterPlaylistKey());
-            log.info("Stored master playlist key in Redis for movie: {} with key: {}", event.getMovieId(), cacheKey);
+            String cacheKey = MASTER_PLAYLIST_KEY_PREFIX + ":" + movieId;
+            redisTemplate.opsForValue().set(cacheKey, masterPlaylistKey);
+            log.info("Stored master playlist key in Redis for movie: {} with key: {}", movieId, cacheKey);
+
+            // Evict any cached partial signed playlists for this movie to prevent playing outdated segments
+            try {
+                java.util.Set<String> keys = redisTemplate.keys("streaming:signed:" + movieId + ":*");
+                if (keys != null && !keys.isEmpty()) {
+                    redisTemplate.delete(keys);
+                    log.info("Evicted {} cached signed playlist keys for movie: {}", keys.size(), movieId);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to evict signed playlist keys: {}", e.getMessage());
+            }
         }
         else{
-            log.error("Video encoding failed for movie: {} with error: {}", event.getMovieId(), event.getErrorMessage());
-            
+            log.error("Video encoding failed for movie: {} with error: {}", movieId, errorMessage);
         }
     }
 }

@@ -60,4 +60,27 @@ public class ContentController {
         @RequestParam String title){
             return ResponseEntity.ok(contentService.searchMovies(title));
         }
+
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.Map<String, Object>> progressCache = 
+        new java.util.concurrent.ConcurrentHashMap<>();
+
+    @PostMapping("/{movieId}/progress")
+    public ResponseEntity<Void> updateProgress(
+            @PathVariable String movieId,
+            @RequestBody java.util.Map<String, Object> progress) {
+        progressCache.put(movieId, progress);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{movieId}/progress")
+    public ResponseEntity<java.util.Map<String, Object>> getProgress(
+            @PathVariable String movieId) {
+        java.util.Map<String, Object> progress = progressCache.get(movieId);
+        if (progress == null) {
+            progress = new java.util.HashMap<>();
+            progress.put("movieId", movieId);
+            progress.put("status", "UNKNOWN");
+        }
+        return ResponseEntity.ok(progress);
+    }
 }
