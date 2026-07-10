@@ -1,0 +1,12 @@
+# Local environment variables
+.env
+
+# IntelliJ/IDE
+.idea/
+.vscode/
+
+# Build artifacts
+target/
+build/
+node_modules/
+dist/

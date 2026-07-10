@@ -37,3 +37,4 @@ content-service\content-service\src\main\resources\application.yaml
 # Ignore configuration secrets
 src/main/resources/application.yaml
 *.yaml
+.env

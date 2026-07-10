@@ -35,3 +35,4 @@ build/
 # Ignore configuration secrets
 src/main/resources/application.yaml
 *.yaml
+.env
