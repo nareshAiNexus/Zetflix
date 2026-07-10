@@ -11,7 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [content-service, video-service, encoding-service, streaming-service, frontend]
+        include:
+          - service: content-service
+            path: ./content-service/content-service
+          - service: video-service
+            path: ./video-service/video-service
+          - service: encoding-service
+            path: ./encoding-service/encoding-service
+          - service: streaming-service
+            path: ./streaming-service/streaming-service
+          - service: frontend
+            path: ./frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +34,7 @@ jobs:
 
       - name: Build & test (${{ matrix.service }})
         if: matrix.service != 'frontend'
-        working-directory: ./${{ matrix.service }}
+        working-directory: ${{ matrix.path }}
         run: mvn clean package
 
       - name: Set up Node
@@ -35,7 +45,7 @@ jobs:
 
       - name: Build frontend
         if: matrix.service == 'frontend'
-        working-directory: ./frontend
+        working-directory: ${{ matrix.path }}
         run: |
           npm ci
           npm run build
@@ -52,10 +62,14 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push image
-        working-directory: ./${{ matrix.service }}
+        working-directory: ${{ matrix.path }}
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |
+          cp ${{ github.workspace }}/services-docker-files/${{ matrix.service }}.Dockerfile ./Dockerfile
+          if [ "${{ matrix.service }}" = "frontend" ]; then
+            cp ${{ github.workspace }}/services-docker-files/nginx.conf ./
+          fi
           docker build -t $ECR_REGISTRY/zetflix-${{ matrix.service }}:latest .
           docker build -t $ECR_REGISTRY/zetflix-${{ matrix.service }}:${{ github.sha }} .
           docker push $ECR_REGISTRY/zetflix-${{ matrix.service }}:latest
