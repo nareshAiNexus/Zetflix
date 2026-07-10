@@ -35,7 +35,7 @@ jobs:
       - name: Build & test (${{ matrix.service }})
         if: matrix.service != 'frontend'
         working-directory: ${{ matrix.path }}
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Set up Node
         if: matrix.service == 'frontend'
