@@ -1,13 +1,15 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import Hls from 'hls.js';
-import { getStreamingInfo, fetchAllMovies } from '../api/api';
+import { getStreamingInfo, fetchAllMovies, fetchWatchProgress, updateWatchProgress, fetchMovieById } from '../api/api';
 import './Watch.css';
 
 const Watch = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const movie = location.state?.movie || { title: 'Unknown Movie', id: '' };
+  const { id: routeMovieId } = useParams();
+  
+  const [movie, setMovie] = useState(location.state?.movie || { title: 'Loading...', id: routeMovieId || '' });
   
   const videoRef = useRef(null);
   const playerContainerRef = useRef(null);
@@ -49,6 +51,28 @@ const Watch = () => {
   const [currentQualityIndex, setCurrentQualityIndex] = useState(-1); // -1 = Auto
   const [showSettings, setShowSettings] = useState(false);
 
+  // Load movie metadata dynamically if location state is missing
+  useEffect(() => {
+    const loadMovieMetadata = async () => {
+      if ((!movie.title || movie.title === 'Loading...') && routeMovieId) {
+        try {
+          const data = await fetchMovieById(routeMovieId);
+          setMovie({
+            id: data.id,
+            title: data.title,
+            imageUrl: data.thumbnailUrl,
+            hlsUrl: data.hlsUrl,
+            videoStatus: data.videoStatus
+          });
+        } catch (err) {
+          console.error("Failed to load movie details:", err);
+          setError("Failed to load movie metadata.");
+        }
+      }
+    };
+    loadMovieMetadata();
+  }, [routeMovieId, movie.title]);
+
   // Format time in seconds to M:SS or H:MM:SS
   const formatTime = (timeInSeconds) => {
     if (isNaN(timeInSeconds)) return '0:00';
@@ -61,6 +85,71 @@ const Watch = () => {
     }
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  const initialTimeRef = useRef(0);
+
+  // Parse time parameter from URL query string if present
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const timeParam = queryParams.get('t');
+    if (timeParam) {
+      const time = parseFloat(timeParam);
+      if (!isNaN(time) && time > 0) {
+        initialTimeRef.current = time;
+      }
+    }
+  }, [location.search]);
+
+  // Fetch watch progress from DB fallback
+  useEffect(() => {
+    const loadProgress = async () => {
+      if (!movie.id || initialTimeRef.current > 0) return; // skip if already parsed from URL
+      try {
+        const progressData = await fetchWatchProgress(movie.id);
+        if (progressData && progressData.status === 'FOUND' && progressData.watchedTimeSeconds > 0) {
+          initialTimeRef.current = progressData.watchedTimeSeconds;
+          
+          // Seek immediately if video metadata is already loaded
+          const video = videoRef.current;
+          if (video && video.duration && video.duration > initialTimeRef.current) {
+            video.currentTime = initialTimeRef.current;
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load watch progress:', err);
+      }
+    };
+    loadProgress();
+  }, [movie.id]);
+
+  // Auto save progress periodically and on unmount
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !movie.id) return;
+
+    const saveProgress = () => {
+      // Only save if we have a valid timestamp and duration (video is actually loaded)
+      if (video.currentTime > 5 && video.duration > 0 && isFinite(video.duration)) {
+        updateWatchProgress(movie.id, Math.floor(video.currentTime), Math.floor(video.duration))
+          .catch(err => console.warn('Failed to save watch progress:', err));
+      }
+    };
+
+    // Save every 10 seconds while playing
+    const intervalId = setInterval(() => {
+      if (!video.paused) saveProgress();
+    }, 10000);
+
+    // Save immediately when user pauses
+    video.addEventListener('pause', saveProgress);
+
+    return () => {
+      clearInterval(intervalId);
+      video.removeEventListener('pause', saveProgress);
+      // Save on exit/unmount
+      saveProgress();
+    };
+  }, [movie.id]);
 
   // Fetch Streaming Info on Mount
   useEffect(() => {
@@ -121,6 +210,7 @@ const Watch = () => {
         enableWorker: true,
         lowLatencyMode: true,
         xhrSetup: (xhr, url) => {
+          let requestUrl = url;
           // If request is for a playlist path from the S3 bucket, sign it through streaming service
           if (url.includes('.m3u8') && !url.includes('X-Amz')) {
             const bucketUrlPart = '.amazonaws.com/';
@@ -129,7 +219,16 @@ const Watch = () => {
               path = url.split(bucketUrlPart)[1];
             }
             const encodedPath = encodeURIComponent(path);
-            xhr.open('GET', `http://localhost:8084/api/v1/stream/${movie.id}/playlist?path=${encodedPath}`);
+            requestUrl = `http://localhost:8084/api/v1/stream/${movie.id}/playlist?path=${encodedPath}`;
+            xhr.open('GET', requestUrl);
+          }
+          
+          // Add JWT Bearer token for all streaming calls to localhost:8084
+          if (requestUrl.includes('localhost:8084') || requestUrl.includes('/api/v1/stream')) {
+            const token = localStorage.getItem('userToken');
+            if (token) {
+              xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            }
           }
         }
       });
@@ -144,6 +243,9 @@ const Watch = () => {
           height: level.height
         }));
         setQualities(levels);
+        if (initialTimeRef.current > 0) {
+          video.currentTime = initialTimeRef.current;
+        }
         if (isPlaying) {
           video.play().catch(e => console.log('Autoplay blocked:', e));
         }
@@ -175,6 +277,9 @@ const Watch = () => {
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       // Fallback for native HLS (Safari/iOS)
       video.src = streamingUrl;
+      if (initialTimeRef.current > 0) {
+        video.currentTime = initialTimeRef.current;
+      }
       if (isPlaying) {
         video.play().catch(e => console.log('Autoplay blocked:', e));
       }
@@ -217,6 +322,10 @@ const Watch = () => {
     if (video) {
       if (isPlaying) {
         video.pause();
+        if (video.currentTime > 0 && video.duration > 0) {
+          updateWatchProgress(movie.id, video.currentTime, video.duration)
+            .catch(err => console.error('Failed to save progress on pause:', err));
+        }
       } else {
         video.play().catch(e => console.error(e));
       }
@@ -240,6 +349,10 @@ const Watch = () => {
     const video = videoRef.current;
     if (video) {
       setDurationStr(formatTime(video.duration));
+      if (initialTimeRef.current > 0 && initialTimeRef.current < video.duration) {
+        video.currentTime = initialTimeRef.current;
+        initialTimeRef.current = 0; // Clear so we don't repeat
+      }
     }
   };
 

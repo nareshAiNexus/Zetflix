@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
 import './Sidebar.css';
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'ADMIN';
 
   const menuItems = [
     { name: 'Home', path: '/', icon: (
@@ -46,6 +49,11 @@ const Sidebar = () => {
     )}
   ];
 
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.name === 'Upload') return isAdmin;
+    return true;
+  });
+
   return (
     <div 
       className={`sidebar ${isExpanded ? 'expanded' : ''}`}
@@ -53,7 +61,7 @@ const Sidebar = () => {
       onMouseLeave={() => setIsExpanded(false)}
     >
       <div className="sidebar-menu">
-        {menuItems.map((item, index) => (
+        {filteredMenuItems.map((item, index) => (
           <NavLink 
             to={item.path}
             className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`} 
