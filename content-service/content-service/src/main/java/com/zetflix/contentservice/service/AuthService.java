@@ -248,20 +248,26 @@ public class AuthService {
     public void seedAdmin() {
         String adminEmail = "admin@zetflix.com";
         Optional<User> existing = userRepository.findByEmail(adminEmail);
-        if (existing.isEmpty()) {
-            // Frontend now sends SHA-256(plaintext) before BCrypt on server.
-            // Pre-compute SHA-256 of "AdminPassword123" so login works correctly.
-            String sha256OfAdminPassword = sha256Hex("AdminPassword123");
+        String sha256OfAdminPassword = sha256Hex("AdminPassword123");
+        String bCryptPassword = BCrypt.hashpw(sha256OfAdminPassword, BCrypt.gensalt());
 
+        if (existing.isEmpty()) {
             User admin = new User();
             admin.setName("Admin");
             admin.setEmail(adminEmail);
-            admin.setPassword(BCrypt.hashpw(sha256OfAdminPassword, BCrypt.gensalt()));
+            admin.setPassword(bCryptPassword);
             admin.setDob(LocalDate.of(1990, 1, 1));
             admin.setRole("ADMIN");
             admin.setVerified(true);
             userRepository.save(admin);
             log.info("Default Admin account seeded: admin@zetflix.com / AdminPassword123");
+        } else {
+            User admin = existing.get();
+            admin.setPassword(bCryptPassword);
+            admin.setVerified(true);
+            admin.setRole("ADMIN");
+            userRepository.save(admin);
+            log.info("Default Admin account password updated to match current hashing logic.");
         }
     }
 

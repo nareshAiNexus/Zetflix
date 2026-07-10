@@ -23,24 +23,43 @@ public class EmailService {
 
     public void sendVerificationOtp(String toEmail, String name, String otp) {
         log.info("Sending OTP verification email to: {}", toEmail);
-        sendHtml(toEmail, "Verify your Zetflix account", buildOtpTemplate(name, otp), "OTP: " + otp);
+        String plainText = "Hi " + name + ",\n\n"
+            + "Welcome to Zetflix! Your email verification code is: " + otp + "\n\n"
+            + "This code expires in 15 minutes.\n\n"
+            + "If you did not create a Zetflix account, please ignore this email.\n\n"
+            + "— Zetflix Team";
+        sendHtml(toEmail, "Your Zetflix verification code: " + otp, buildOtpTemplate(name, otp), plainText);
     }
 
     public void sendPasswordResetToken(String toEmail, String name, String token) {
         log.info("Sending password reset email to: {}", toEmail);
-        sendHtml(toEmail, "Reset your Zetflix password", buildResetTemplate(name, token), "Reset code: " + token);
+        String plainText = "Hi " + name + ",\n\n"
+            + "We received a request to reset your Zetflix password.\n\n"
+            + "Your password reset code is: " + token + "\n\n"
+            + "This code expires in 15 minutes.\n\n"
+            + "If you did not request this, please ignore this email — your account is safe.\n\n"
+            + "— Zetflix Team";
+        sendHtml(toEmail, "Reset your Zetflix password", buildResetTemplate(name, token), plainText);
     }
 
     // ─── Internal dispatch ─────────────────────────────────────────────
 
-    private void sendHtml(String to, String subject, String html, String fallback) {
+    private void sendHtml(String to, String subject, String html, String plainText) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(html, true);
+            // Set BOTH plain-text and HTML — critical for spam score
+            helper.setText(plainText, html);
             helper.setFrom(fromAddress, "Zetflix");
+            helper.setReplyTo(fromAddress);
+
+            // Add headers that improve deliverability
+            message.setHeader("X-Mailer", "Zetflix-Mailer");
+            message.setHeader("X-Priority", "1");
+            message.setHeader("Precedence", "bulk");
+
             mailSender.send(message);
             log.info("Email sent successfully to {}", to);
         } catch (Exception e) {
@@ -86,9 +105,7 @@ public class EmailService {
             "  <div class='card'>" +
             "    <div class='hero'>" +
             "      <div class='logo'>" +
-            "        <svg class='logo-icon' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>" +
-            "          <path d='M24 12L4 24V0L24 12Z' fill='#e50914'/>" +
-            "        </svg>" +
+            "        <span style='font-size:32px;margin-right:8px'>▶</span>" +
             "        <span class='logo-text'>ZETFLIX</span>" +
             "      </div>" +
             "      <div class='hero-title'>Verify your email address</div>" +
@@ -106,8 +123,8 @@ public class EmailService {
             "      <div class='warning'>⚠ If you did not create a Zetflix account, you can safely ignore this email.</div>" +
             "    </div>" +
             "    <div class='footer'>" +
-            "      <p>This is an automated message — please do not reply to this email.</p>" +
-            "      <p style='margin-top:8px'>&copy; " + java.time.Year.now() + " Zetflix Inc. &nbsp;|&nbsp; <a href='#'>Privacy Policy</a> &nbsp;|&nbsp; <a href='#'>Support</a></p>" +
+            "      <p>This is an automated message from Zetflix.</p>" +
+            "      <p style='margin-top:8px'>&copy; " + java.time.Year.now() + " Zetflix Inc.</p>" +
             "    </div>" +
             "  </div>" +
             "</div></body></html>";
@@ -147,9 +164,7 @@ public class EmailService {
             "  <div class='card'>" +
             "    <div class='hero'>" +
             "      <div class='logo'>" +
-            "        <svg width='36' height='36' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>" +
-            "          <path d='M24 12L4 24V0L24 12Z' fill='#e50914'/>" +
-            "        </svg>" +
+            "        <span style='font-size:32px;margin-right:8px'>▶</span>" +
             "        <span class='logo-text'>ZETFLIX</span>" +
             "      </div>" +
             "      <div class='hero-title'>Reset your password</div>" +
@@ -166,8 +181,8 @@ public class EmailService {
             "      <div class='warning'>🔒 If you did not request a password reset, please ignore this email — your account is safe.</div>" +
             "    </div>" +
             "    <div class='footer'>" +
-            "      <p>This is an automated message — please do not reply to this email.</p>" +
-            "      <p style='margin-top:8px'>&copy; " + java.time.Year.now() + " Zetflix Inc. &nbsp;|&nbsp; <a href='#'>Privacy Policy</a> &nbsp;|&nbsp; <a href='#'>Support</a></p>" +
+            "      <p>This is an automated message from Zetflix.</p>" +
+            "      <p style='margin-top:8px'>&copy; " + java.time.Year.now() + " Zetflix Inc.</p>" +
             "    </div>" +
             "  </div>" +
             "</div></body></html>";
