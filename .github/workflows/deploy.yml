@@ -1,0 +1,79 @@
+name: Zetflix CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # lets you trigger manually from the GitHub Actions tab
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [content-service, video-service, encoding-service, streaming-service, frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        if: matrix.service != 'frontend'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build & test (${{ matrix.service }})
+        if: matrix.service != 'frontend'
+        working-directory: ./${{ matrix.service }}
+        run: mvn clean package
+
+      - name: Set up Node
+        if: matrix.service == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build frontend
+        if: matrix.service == 'frontend'
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        working-directory: ./${{ matrix.service }}
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/zetflix-${{ matrix.service }}:latest .
+          docker build -t $ECR_REGISTRY/zetflix-${{ matrix.service }}:${{ github.sha }} .
+          docker push $ECR_REGISTRY/zetflix-${{ matrix.service }}:latest
+          docker push $ECR_REGISTRY/zetflix-${{ matrix.service }}:${{ github.sha }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/zetflix
+            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            export ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}
+            docker-compose pull
+            docker-compose up -d
+            docker image prune -f
