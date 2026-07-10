@@ -47,7 +47,7 @@ jobs:
         if: matrix.service == 'frontend'
         working-directory: ${{ matrix.path }}
         run: |
-          npm ci
+          npm install
           npm run build
 
       - name: Configure AWS credentials
