@@ -55,7 +55,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-south-1
+          aws-region: eu-north-1
 
       - name: Login to Amazon ECR
         id: ecr-login
@@ -87,7 +87,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/zetflix
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
             export ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}
             docker-compose pull
             docker-compose up -d
