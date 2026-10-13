@@ -1,0 +1,132 @@
+<svg viewBox="0 0 1200 660" xmlns="http://www.w3.org/2000/svg" font-family="Comic Sans MS, Segoe Print, cursive">
+  <defs>
+    <marker id="arrow2" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L10,4 z" fill="#1e1e1e"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="660" fill="#ffffff"/>
+  <text x="600" y="42" text-anchor="middle" font-size="28" fill="#1e1e1e">Zetflix - AWS Deployment and CI/CD Pipeline</text>
+
+  <!-- Developer -->
+  <path d="M40,92 Q42,88 48,90 L212,88 Q222,88 220,96 L222,156 Q220,162 212,160 L48,162 Q40,160 42,152 Z"
+        fill="#e9ecef" stroke="#1e1e1e" stroke-width="2.5"/>
+  <circle cx="130" cy="112" r="10" fill="#ffffff" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M112,138 q18,-16 36,0" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <text x="130" y="150" text-anchor="middle" font-size="12" fill="#1e1e1e">git push (main)</text>
+
+  <!-- GitHub repo -->
+  <path d="M280,92 Q282,88 288,90 L452,88 Q462,88 460,96 L462,156 Q460,162 452,160 L288,162 Q280,160 282,152 Z"
+        fill="#dee2e6" stroke="#1e1e1e" stroke-width="2.5"/>
+  <path d="M348,108 h20 l6,8 h20 v22 h-46 Z" fill="#ffffff" stroke="#1e1e1e" stroke-width="2"/>
+  <text x="370" y="150" text-anchor="middle" font-size="12" fill="#1e1e1e">GitHub Repository</text>
+
+  <!-- GitHub Actions -->
+  <path d="M520,86 Q522,82 530,84 L730,82 Q742,82 740,92 L742,166 Q740,174 730,172 L530,174 Q520,172 522,162 Z"
+        fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2.5"/>
+  <circle cx="600" cy="118" r="14" fill="none" stroke="#1e1e1e" stroke-width="2.2"/>
+  <circle cx="600" cy="118" r="4" fill="#1e1e1e"/>
+  <path d="M600,104 v4 M600,128 v4 M586,118 h4 M610,118 h4 M590,108 l3,3 M607,108 l-3,3 M590,128 l3,-3 M607,128 l-3,-3" stroke="#1e1e1e" stroke-width="2"/>
+  <text x="655" y="123" text-anchor="middle" font-size="13" fill="#1e1e1e">GitHub Actions</text>
+  <text x="630" y="150" text-anchor="middle" font-size="11" fill="#1c4e80">Build - Test - Dockerize</text>
+
+  <!-- ECR -->
+  <path d="M800,86 Q802,82 810,84 L990,82 Q1000,82 998,92 L1000,166 Q998,174 990,172 L810,174 Q800,172 802,162 Z"
+        fill="#ffd8a8" stroke="#1e1e1e" stroke-width="2.5"/>
+  <rect x="855" y="102" width="34" height="24" rx="2" fill="#ffffff" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="862" y="94" width="34" height="24" rx="2" fill="#ffffff" stroke="#1e1e1e" stroke-width="2"/>
+  <text x="895" y="150" text-anchor="middle" font-size="13" fill="#1e1e1e">Amazon ECR</text>
+  <text x="895" y="166" text-anchor="middle" font-size="10" fill="#7a4a10">Private image registry</text>
+
+  <!-- IAM user -->
+  <path d="M1030,94 Q1032,90 1038,92 L1160,90 Q1170,90 1168,98 L1170,158 Q1168,164 1160,162 L1038,164 Q1030,162 1032,154 Z"
+        fill="#e7c9f9" stroke="#1e1e1e" stroke-width="2.5"/>
+  <circle cx="1100" cy="112" r="8" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <rect x="1094" y="120" width="12" height="10" rx="2" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <text x="1100" y="146" text-anchor="middle" font-size="11" fill="#1e1e1e">IAM User</text>
+  <text x="1100" y="160" text-anchor="middle" font-size="9" fill="#5c2483">ECR push access</text>
+
+  <!-- SSH deploy step -->
+  <path d="M520,240 Q522,236 530,238 L730,236 Q740,236 738,244 L740,306 Q738,312 730,310 L530,312 Q520,310 522,302 Z"
+        fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2.5"/>
+  <rect x="588" y="258" width="24" height="18" rx="2" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M594,258 v-6 q0,-6 6,-6 q6,0 6,6 v6" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <text x="655" y="272" text-anchor="middle" font-size="13" fill="#1e1e1e">SSH Deploy Step</text>
+
+  <!-- EC2 boundary box -->
+  <path d="M220,362 Q225,354 236,357 L964,354 Q978,354 976,366 L980,580 Q978,592 964,590 L236,594 Q220,592 224,580 Z"
+        fill="#fff9db" stroke="#e8590c" stroke-width="2.5" stroke-dasharray="8 6"/>
+  <text x="600" y="388" text-anchor="middle" font-size="15" fill="#8a4b04">EC2 Instance (t3.medium) - Elastic IP attached</text>
+
+  <!-- Docker engine -->
+  <rect x="252" y="408" width="150" height="62" rx="6" fill="#a5d8ff" stroke="#1e1e1e" stroke-width="2.2"/>
+  <rect x="272" y="428" width="14" height="12" fill="#ffffff" stroke="#1e1e1e" stroke-width="1.5"/>
+  <rect x="288" y="428" width="14" height="12" fill="#ffffff" stroke="#1e1e1e" stroke-width="1.5"/>
+  <rect x="304" y="428" width="14" height="12" fill="#ffffff" stroke="#1e1e1e" stroke-width="1.5"/>
+  <path d="M270,428 q30,-16 60,0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+  <text x="327" y="458" text-anchor="middle" font-size="12" fill="#1e1e1e">Docker Engine</text>
+
+  <!-- docker-compose -->
+  <rect x="422" y="408" width="150" height="62" rx="6" fill="#d0bfff" stroke="#1e1e1e" stroke-width="2.2"/>
+  <rect x="450" y="424" width="24" height="30" rx="2" fill="#ffffff" stroke="#1e1e1e" stroke-width="1.5"/>
+  <line x1="454" y1="430" x2="470" y2="430" stroke="#1e1e1e" stroke-width="1.3"/>
+  <line x1="454" y1="436" x2="470" y2="436" stroke="#1e1e1e" stroke-width="1.3"/>
+  <line x1="454" y1="442" x2="464" y2="442" stroke="#1e1e1e" stroke-width="1.3"/>
+  <text x="497" y="458" text-anchor="middle" font-size="12" fill="#1e1e1e">docker-compose</text>
+
+  <!-- IAM role -->
+  <rect x="592" y="408" width="150" height="62" rx="6" fill="#e7c9f9" stroke="#1e1e1e" stroke-width="2.2"/>
+  <circle cx="617" cy="435" r="7" fill="none" stroke="#1e1e1e" stroke-width="1.8"/>
+  <line x1="624" y1="435" x2="638" y2="435" stroke="#1e1e1e" stroke-width="1.8"/>
+  <line x1="632" y1="435" x2="632" y2="442" stroke="#1e1e1e" stroke-width="1.8"/>
+  <text x="667" y="458" text-anchor="middle" font-size="11" fill="#1e1e1e">IAM Role (ECR pull)</text>
+
+  <!-- Running containers row -->
+  <rect x="252" y="486" width="640" height="88" rx="8" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="2"/>
+  <text x="572" y="508" text-anchor="middle" font-size="12" fill="#343a40">Running containers</text>
+
+  <g font-size="10" fill="#343a40" text-anchor="middle">
+    <rect x="278" y="518" width="46" height="34" rx="4" fill="#d0bfff" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="301" y="562">content</text>
+
+    <rect x="336" y="518" width="46" height="34" rx="4" fill="#ffc9c9" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="359" y="562">video</text>
+
+    <rect x="394" y="518" width="46" height="34" rx="4" fill="#ffd8a8" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="417" y="562">encoding</text>
+
+    <rect x="452" y="518" width="46" height="34" rx="4" fill="#99e9f2" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="475" y="562">streaming</text>
+
+    <rect x="510" y="518" width="46" height="34" rx="4" fill="#96f2d7" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="533" y="562">mysql</text>
+
+    <rect x="568" y="518" width="46" height="34" rx="4" fill="#ffa8a8" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="591" y="562">redis</text>
+
+    <rect x="626" y="518" width="46" height="34" rx="4" fill="#ffec99" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="649" y="562">kafka+zk</text>
+
+    <rect x="684" y="518" width="46" height="34" rx="4" fill="#b2f2bb" stroke="#1e1e1e" stroke-width="1.5"/>
+    <text x="707" y="562">frontend</text>
+  </g>
+
+  <!-- User browser -->
+  <path d="M1000,486 Q1002,482 1010,484 L1160,482 Q1170,482 1168,492 L1170,552 Q1168,558 1160,556 L1010,558 Q1000,556 1002,548 Z"
+        fill="#b2f2bb" stroke="#1e1e1e" stroke-width="2.5"/>
+  <circle cx="1085" cy="510" r="16" fill="none" stroke="#1e1e1e" stroke-width="2"/>
+  <path d="M1069,510 h32 M1085,494 q10,16 0,32 M1085,494 q-10,16 0,32" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+  <text x="1085" y="542" text-anchor="middle" font-size="11" fill="#1e1e1e">User Browser</text>
+
+  <!-- Arrows -->
+  <line x1="222" y1="124" x2="278" y2="124" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <line x1="462" y1="124" x2="518" y2="124" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <line x1="742" y1="128" x2="798" y2="128" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <line x1="1030" y1="132" x2="1002" y2="132" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <line x1="630" y1="174" x2="630" y2="238" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <line x1="630" y1="312" x2="630" y2="360" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <line x1="895" y1="174" x2="700" y2="408" stroke="#495057" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow2)"/>
+  <line x1="960" y1="530" x2="998" y2="514" stroke="#1e1e1e" stroke-width="2" marker-end="url(#arrow2)"/>
+
+  <text x="600" y="632" text-anchor="middle" font-size="13" fill="#495057">Push to main -&gt; build and test -&gt; push image to ECR -&gt; connect to EC2 -&gt; pull and restart containers via docker-compose</text>
+</svg>
