@@ -29,9 +29,9 @@
 
 ## Overview
 
-Zetflix is a full-stack, event-driven video streaming platform that mirrors the core architecture patterns used by real production streaming services — independent microservices communicating asynchronously over Kafka, video transcoding to HLS, S3-backed storage, Redis-cached delivery, and a fully containerized deployment pipeline to AWS.
+Zetflix is a full-stack, event-driven video streaming platform that mirrors the core architecture patterns used by real production streaming services — independent microservices communicating asynchronously to handle authentication, media ingestion, transcoding, and playback delivery.
 
-It was built as a hands-on systems engineering project to explore microservice decomposition, event-driven communication, video pipeline design, and production-style DevOps (Docker, CI/CD, cloud deployment) from the ground up.
+It was built as a hands-on systems engineering project to explore microservice decomposition, event-driven communication, video pipeline design, and production-style DevOps (Docker, CI/CD, cloud deployment) in a single cohesive application.
 
 ### Features
 
@@ -64,6 +64,18 @@ Zetflix is split into four independently deployable Spring Boot services, a Kafk
 
 Services never call each other directly for state-changing operations — they communicate through Kafka topics, keeping each service independently deployable and resilient to partial failures.
 
+### Encoding Pipeline
+
+<p align="center">
+  <img src="docs/images/encoding-pipeline.png" alt="Zetflix video encoding pipeline" width="100%">
+</p>
+
+### Streaming Flow
+
+<p align="center">
+  <img src="docs/images/streaming-flow.png" alt="Zetflix streaming request flow" width="100%">
+</p>
+
 ### AWS Deployment & CI/CD
 
 <p align="center">
@@ -78,7 +90,7 @@ Every push to `main` triggers an automated pipeline:
 4. The EC2 instance (via an attached IAM role — no static keys on the box) authenticates to ECR and pulls the latest images
 5. `docker-compose` restarts the stack with zero manual intervention
 
-This intentionally uses a single EC2 host with Docker Compose rather than Kubernetes/EKS — a deliberate cost/complexity tradeoff for a project run intermittently rather than serving continuous production traffic. See [Deployment](#deployment) for the reasoning.
+This intentionally uses a single EC2 host with Docker Compose rather than Kubernetes/EKS — a deliberate cost/complexity tradeoff for a project run intermittently rather than serving continuous traffic at hyperscale.
 
 ---
 
@@ -161,7 +173,7 @@ See [`.env.example`](.env.example) for the full list of required variables. Neve
 
 ## Deployment
 
-Zetflix deploys to a single AWS EC2 instance running Docker Compose, orchestrated via GitHub Actions. This is a deliberate choice: the project is exercised intermittently (demos, interviews) rather than serving continuous traffic, so a full EKS/Kubernetes setup would add operational cost and complexity without a corresponding benefit. The CI/CD pipeline itself — build, test, containerize, push, deploy — is written to be deployment-target agnostic, meaning the EC2 target can be swapped for EKS later without touching the build/test stages.
+Zetflix deploys to a single AWS EC2 instance running Docker Compose, orchestrated via GitHub Actions. This is a deliberate choice: the project is exercised intermittently (demos, interviews) rather than as a 24/7 production service, which keeps costs low while still demonstrating genuine cloud deployment patterns.
 
 Full deployment steps, security group configuration, and cost-saving practices (stop/start scheduling, Elastic IP management) are documented in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
