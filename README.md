@@ -49,10 +49,6 @@ It was built as a hands-on systems engineering project to explore microservice d
 
 ### System Architecture
 
-<p align="center">
-  <img src="docs/system-architecture.svg" alt="Zetflix system architecture diagram" width="100%">
-</p>
-
 Zetflix is split into four independently deployable Spring Boot services, a Kafka event backbone, and a React frontend:
 
 | Service | Responsibility | Port |
